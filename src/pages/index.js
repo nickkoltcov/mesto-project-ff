@@ -16,7 +16,7 @@ const addCardPopup = document.querySelector('.popup_type_new-card'); // моду
 const ImgPopup = document.querySelector('.popup_type_image'); // модульное окно popup картинки 
 
 //объявляю переменную кнопки, которая закрывает popup 
-const closePopupButton = document.querySelectorAll('.popup__close');
+const closePopupButtons = document.querySelectorAll('.popup__close');
 
 //объявляю переменную формы  профиля 
 const formProfile = document.forms['edit-profile'];
@@ -53,7 +53,7 @@ addCardButton.addEventListener('click', function () {
 });
 
 //закрытие окна
-closePopupButton.forEach(function(close) {
+closePopupButtons.forEach(function(close) {
   close.addEventListener("click", () => {
     closePopup(close.closest('.popup'));
   });
@@ -83,6 +83,7 @@ function handleFormAddCardSubmit(evt) {
     const createdCard = createCard(cards, deleteCards,likeCard,openPopupIgm);
     placesList.prepend(createdCard);
     closePopup(addCardPopup);
+    formAddCard.reset()
 }
 formAddCard.addEventListener('submit', handleFormAddCardSubmit); 
 
