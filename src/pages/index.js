@@ -20,6 +20,7 @@ const nameInput = formProfile.elements.name;
 const jobInput = formProfile.elements.description;
 const profileName = document.querySelector('.profile__title');
 const profileJob = document.querySelector('.profile__description');
+const profileButtonSave = formProfile.querySelector('.popup__button'); //кнопка сохранить в попапе радектирования имени и работы 
 
 //переменные связанные с добавлением карточки 
 const addCardButton = document.querySelector('.profile__add-button'); //кнопка добавление карточки
@@ -31,16 +32,19 @@ const placeName = formAddCard.elements['place-name'];
 const url = formAddCard.elements.link
 const addCardImg = document.querySelector('.popup__image');
 const addCardCaption = document.querySelector('.popup__caption');
+const addButtonSave = formAddCard.querySelector('.popup__button'); // кнопка сохранения в попапе добавления карточки 
 
 //переменные связаные с аватаркой профеля
-const formAvatar = document.forms['update-avatar'] 
-const profileAvatarButton = document.querySelector('.avatar-button') // кнопка изминения аватарки 
+const formAvatar = document.forms['update-avatar'] ;
+const profileAvatarButton = document.querySelector('.avatar-button') ;// кнопка изминения аватарки 
 const popupAvatar = document.querySelector('.popup_type_edit-avatar') ; // модульное окно popup аватарки профеля 
 const profileAvatar = document.querySelector(".profile__image");
 const avatarUrl = formAvatar.elements.avatar;
+const avatarButtonSave = formAvatar.querySelector('.popup__button')// кнопка сохранения в попапе аватари 
 
 
-const ImgPopup = document.querySelector('.popup_type_image'); // модульное окно popup картинки
+
+const imgPopup = document.querySelector('.popup_type_image'); // модульное окно popup картинки
 
 
 //объявляю переменную кнопки, которая закрывает popup 
@@ -60,18 +64,21 @@ const validationSetting = {
 
 //вывод карточек на страницу 
 Promise.all([loadingProfileInfo(), loadingCardServer()])
-  .then(([info, Cards]) => {
+  .then(([info, cards]) => {
     myId = info["_id"];
     profileName.textContent = info.name;
     profileJob.textContent = info.about;
     profileAvatar.style.backgroundImage = `url('${info.avatar}')`;
-    Cards.forEach((res) => {
+    cards.forEach((res) => {
       withdrawCard(res,placesList);
     });
   })
   .catch((error) => {
     console.log(error);
   });
+
+
+ 
 
 // функция вывода карточек 
 function withdrawCard(cards, list) {
@@ -111,25 +118,42 @@ closePopupButtons.forEach(function(close) {
 // Обработчик «отправки» формы, хотя пока,не отправляет 
 function handleFormProfileSubmit(evt) {
     evt.preventDefault();
+    profileButtonSave.textContent = "Сохранение...";
 
     editProfileInfo(
       nameInput.value,
       jobInput.value
     )
-    profileName.textContent = nameInput.value;
-    profileJob.textContent = jobInput.value;
-    closePopup(popupProfil);  
+    .then(() =>{
+      profileName.textContent = nameInput.value;
+      profileJob.textContent = jobInput.value;
+      closePopup(popupProfil);
+    })
+    .catch((err) => {
+      console.log(err)
+    }) 
+    .finally(() => {
+      profileButtonSave.textContent = "Сохранить"
+    })
 }
 formProfile.addEventListener('submit', handleFormProfileSubmit); 
 
 // обновления аватарки 
 function handleFormAvatarSubmit(evt) {
   evt.preventDefault();
+  avatarButtonSave.textContent = "Сохранение...";
   updateAvatarProfile(avatarUrl.value)
   .then((info)=> {
     profileAvatar.style.backgroundImage = `url('${info.avatar}')`;
+    closePopup(popupAvatar);
+    formAvatar.reset()
   })
-  closePopup(popupAvatar);
+  .catch((err) => {
+    console.log(err);
+  })
+  .finally(() => {
+    avatarButtonSave.textContent = "Сохранить";
+  });
   
 }
 formAvatar.addEventListener('submit', handleFormAvatarSubmit); 
@@ -137,7 +161,8 @@ formAvatar.addEventListener('submit', handleFormAvatarSubmit);
 
 //добавления карточки
 function handleFormAddCardSubmit(evt) {
-    evt.preventDefault();   
+    evt.preventDefault();
+    addButtonSave.textContent = "Сохранение ... ";   
     const cards = {
       name: placeName.value,
       link: url.value
@@ -148,13 +173,20 @@ function handleFormAddCardSubmit(evt) {
       const createdCard = createCard(cards, deleteCards,likeCards,openPopupIgm,myId);
     placesList.prepend(createdCard);
     closePopup(addCardPopup);
+    formAddCard.reset()
     })
+    .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {
+      addButtonSave.textContent = "Сохранить";
+    });
 }
 formAddCard.addEventListener('submit', handleFormAddCardSubmit); 
 
 //открытие popup по нажатию на карточку 
 function openPopupIgm(evt) {
-  openPopup(ImgPopup);
+  openPopup(imgPopup);
   addCardImg.src =  evt.target.src;
   addCardImg.alt =  evt.target.alt;
   addCardCaption.textContent = evt.target.alt;

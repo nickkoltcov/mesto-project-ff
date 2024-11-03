@@ -31,11 +31,11 @@ if (checkLike(cards, myId)) {
     if (myId !== cards.owner['_id']) {
         deleteButton.remove();
     } else {
-        deleteButton.addEventListener('click', clickDelete);
+        deleteButton.addEventListener('click', () => clickDelete(cards['_id']));
     };
 
         
-    likeButton.addEventListener('click', clickLike);
+    likeButton.addEventListener('click', () => clickLike(cards['_id'], likeButton, cardlike));
 
     imageElement.addEventListener('click', clicklIgm);
 
@@ -43,38 +43,42 @@ if (checkLike(cards, myId)) {
 };
 
 //функция удаления карточки 
-function deleteCards(evt) {
-    const deleteCard = evt.target.closest(".card");
-    deleteCardServer(deleteCard.getAttribute('id'))
-    .then(() => {
-        deleteCard.remove()
-    })   
-    
+function deleteCards(cardId) {
+    deleteCardServer(cardId)
+        .then(() => {
+            const deleteCard = document.getElementById(cardId);
+            deleteCard.remove();
+        })
+        .catch((err) => {
+            console.log(err);
+          });
 }
 
 
 //функция лайка карточки
-function likeCards(evt) {
-    const like = evt.target
-    const cardId = like.getAttribute('data-id')
-    const isliked = evt.target.classList.contains('card__like-button_is-active')
-    const cardlike = document.getElementById(cardId)
-    const likeNumbElement = cardlike.querySelector('.card__like-number')
-    if(isliked) {
+function likeCards(cardId, likeButton, likeNumbElement) {
+    const isLiked = likeButton.classList.contains('card__like-button_is-active');
+
+    if (isLiked) {
         unLike(cardId)
-        .then((res)=>{
-            likeNumbElement.textContent = res.likes.length
-            evt.target.classList.toggle('card__like-button_is-active')
-        })
-        
+            .then((res) => {
+                likeNumbElement.textContent = res.likes.length;
+                likeButton.classList.toggle('card__like-button_is-active');
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     } else {
         likeCard(cardId)
-        .then((res)=>{
-            likeNumbElement.textContent = res.likes.length
-            evt.target.classList.toggle('card__like-button_is-active')
-        })
+            .then((res) => {
+                likeNumbElement.textContent = res.likes.length;
+                likeButton.classList.toggle('card__like-button_is-active');
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     }
-};
+}
 
 //проверка лайка 
 function checkLike(cards, myId) {
